@@ -1,0 +1,17 @@
+#!/bin/sh
+against=HEAD
+ABORTED=0
+for FILE in `git diff-index --name-status $against | grep -E '\.(xib|storyboard)$' | cut -c3-`; do
+    result=`git diff --staged $FILE | grep -E '(document type|plugIn identifier)'`
+    if [ -n "${result}" ]; then
+        echo $'\e[1;31m'$FILE$'\e[m'
+        echo `git diff --staged $FILE`
+        ABORTED=1
+    fi
+done
+if [ $ABORTED -eq 1 ]; then
+    echo 'Are you sure to commit these changes in these xml files?'
+    exit 1
+else
+    exit 0
+fi
